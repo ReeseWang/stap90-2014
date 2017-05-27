@@ -31,5 +31,5 @@ memallocate.mod : ../../src/memalloc.f90
 clean : 
 	rm stap stap.o datain.o elcal.o assem.o globals.o globals.mod truss.o memalloc.o memallocate.mod
 
-run :
+run : stap
 	./stap stap90.in
