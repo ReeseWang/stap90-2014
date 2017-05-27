@@ -1,0 +1,8 @@
+*.o
+data/*
+doc/*
+*.bak
+make/gnu/stap
+*.in
+*.msh
+*.swp
