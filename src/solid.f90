@@ -263,7 +263,8 @@ SUBROUTINE OLID (ID,X,Y,Z,U,MHT,E,RHO,NIU,LM,XYZ,MATP)
         IF (IPRINT.GT.50) IPRINT=1
         IF (IPRINT.EQ.1) WRITE (IOUT,"(//,' S T R E S S  C A L C U L A T I O N S  F O R  ',  &
                                            'E L E M E N T  G R O U P',I4,//,   &
-                                           '  ELEMENT',47X,'STRESS',/,'  NUMBER',8X,'Sxx',13X,'Syy',14X,'Szz',14X,'Sxy',14X,'Syz',14X,'Szx')") NG
+                                           '  ELEMENT',47X,'STRESS',/, &
+                                           '  NUMBER',8X,'Sxx',13X,'Syy',14X,'Szz',14X,'Sxy',14X,'Syz',14X,'Szx')") NG
         MTYPE=MATP(N)
         
         X0 = (XYZ(1,N)+XYZ(4,N))/2.
