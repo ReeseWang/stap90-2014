@@ -8,3 +8,4 @@ make/gnu/stap
 *.swp
 *.OUT
 *.swo
+*.TMP
