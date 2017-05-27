@@ -89,32 +89,33 @@ SUBROUTINE RUSS (ID,X,Y,Z,U,MHT,E,AREA,LM,XYZ,MATP)
 ! Read and generate element information
   IF (IND .EQ. 1) THEN
 
-     WRITE (IOUT,"(' E L E M E N T   D E F I N I T I O N',//,  &
-                   ' ELEMENT TYPE ',13(' .'),'( NPAR(1) ) . . =',I5,/,   &
-                   '     EQ.1, TRUSS ELEMENTS',/,      &
-                   '     EQ.2, ELEMENTS CURRENTLY',/,  &
-                   '     EQ.3, NOT AVAILABLE',//,      &
-                   ' NUMBER OF ELEMENTS.',10(' .'),'( NPAR(2) ) . . =',I5,/)") NPAR1,NUME
+!     WRITE (IOUT,"(' E L E M E N T   D E F I N I T I O N',//,  &
+!                   ' ELEMENT TYPE ',13(' .'),'( NPAR(1) ) . . =',I5,/,   &
+!                   '     EQ.1, TRUSS ELEMENTS',/,      &
+!                   '     EQ.2, ELEMENTS CURRENTLY',/,  &
+!                   '     EQ.3, NOT AVAILABLE',//,      &
+!                   ' NUMBER OF ELEMENTS.',10(' .'),'( NPAR(2) ) . . =',I5,/)") NPAR1,NUME
 
      IF (NUMMAT.EQ.0) NUMMAT=1
 
-     WRITE (IOUT,"(' M A T E R I A L   D E F I N I T I O N',//,  &
-                   ' NUMBER OF DIFFERENT SETS OF MATERIAL',/,  &
-                   ' AND CROSS-SECTIONAL  CONSTANTS ',         &
-                   4 (' .'),'( NPAR(3) ) . . =',I5,/)") NUMMAT
-
-     WRITE (IOUT,"('  SET       YOUNG''S     CROSS-SECTIONAL',/,  &
-                   ' NUMBER     MODULUS',10X,'AREA',/,  &
-                   15 X,'E',14X,'A')")
+!     WRITE (IOUT,"(' M A T E R I A L   D E F I N I T I O N',//,  &
+!                   ' NUMBER OF DIFFERENT SETS OF MATERIAL',/,  &
+!                   ' AND CROSS-SECTIONAL  CONSTANTS ',         &
+!                   4 (' .'),'( NPAR(3) ) . . =',I5,/)") NUMMAT
+!
+!     WRITE (IOUT,"('  SET       YOUNG''S     CROSS-SECTIONAL',/,  &
+!                   ' NUMBER     MODULUS',10X,'AREA',/,  &
+!                   15 X,'E',14X,'A')")
 
      DO I=1,NUMMAT
         READ (IIN,'(I5,2F10.0)') N,E(N),AREA(N)  ! Read material information
-        WRITE (IOUT,"(I5,4X,E12.5,2X,E14.6)") N,E(N),AREA(N)
+!        WRITE (IOUT,"(I5,4X,E12.5,2X,E14.6)") N,E(N),AREA(N)
      END DO
 
-     WRITE (IOUT,"(//,' E L E M E N T   I N F O R M A T I O N',//,  &
-                      ' ELEMENT     NODE     NODE       MATERIAL',/,   &
-                      ' NUMBER-N      I        J       SET NUMBER')")
+!     WRITE (IOUT,"(//,' E L E M E N T   I N F O R M A T I O N',//,  &
+!                      ' ELEMENT     NODE     NODE       MATERIAL',/,   &
+!                      ' NUMBER-N      I        J       SET NUMBER')")
+     WRITE (IOUT,"('$Elements',/,I0)") NUME
 
      N=0
      DO WHILE (N .NE. NUME)
@@ -143,9 +144,11 @@ SUBROUTINE RUSS (ID,X,Y,Z,U,MHT,E,AREA,LM,XYZ,MATP)
 !       Update column heights and bandwidth
         CALL COLHT (MHT,ND,LM(1,N))   
 
-        WRITE (IOUT,"(I5,6X,I5,4X,I5,7X,I5)") N,I,J,MTYPE
+!        WRITE (IOUT,"(I5,6X,I5,4X,I5,7X,I5)") N,I,J,MTYPE
+        WRITE (IOUT,"(I0,' 1 2 99 2 ',I0,1X,I0)") N,I,J
 
      END DO
+     WRITE (IOUT, "('$EndElements')")
 
      RETURN
 
@@ -186,12 +189,13 @@ SUBROUTINE RUSS (ID,X,Y,Z,U,MHT,E,AREA,LM,XYZ,MATP)
   ELSE IF (IND .EQ. 3) THEN
 
      IPRINT=0
+     WRITE (IOUT,"('1',/,'0.0',/,'3',/,'0',/,'1',/,I0)") NUME
      DO N=1,NUME
         IPRINT=IPRINT + 1
         IF (IPRINT.GT.50) IPRINT=1
-        IF (IPRINT.EQ.1) WRITE (IOUT,"(//,' S T R E S S  C A L C U L A T I O N S  F O R  ',  &
-                                           'E L E M E N T  G R O U P',I4,//,   &
-                                           '  ELEMENT',13X,'FORCE',12X,'STRESS',/,'  NUMBER')") NG
+!        IF (IPRINT.EQ.1) WRITE (IOUT,"(//,' S T R E S S  C A L C U L A T I O N S  F O R  ',  &
+!                                           'E L E M E N T  G R O U P',I4,//,   &
+!                                           '  ELEMENT',13X,'FORCE',12X,'STRESS',/,'  NUMBER')") NG
         MTYPE=MATP(N)
 
         XL2=0.
@@ -216,7 +220,8 @@ SUBROUTINE RUSS (ID,X,Y,Z,U,MHT,E,AREA,LM,XYZ,MATP)
 
         P=STR*AREA(MTYPE)
 
-        WRITE (IOUT,"(1X,I5,11X,E13.6,4X,E13.6)") N,P,STR
+!        WRITE (IOUT,"(1X,I5,11X,E13.6,4X,E13.6)") N,P,STR
+        WRITE (IOUT,"(I0,1X,E13.6)") N,STR
      END DO
 
   ELSE 

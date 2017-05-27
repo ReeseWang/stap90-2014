@@ -25,7 +25,7 @@ SUBROUTINE ELCAL
   INTEGER :: N, I
 
   REWIND IELMNT
-  WRITE (IOUT,"(//,' E L E M E N T   G R O U P   D A T A',//)")
+!  WRITE (IOUT,"(//,' E L E M E N T   G R O U P   D A T A',//)")
 
 ! Loop over all element groups
 

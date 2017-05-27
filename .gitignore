@@ -6,3 +6,5 @@ make/gnu/stap
 *.in
 *.msh
 *.swp
+*.OUT
+*.swo
