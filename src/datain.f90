@@ -41,15 +41,20 @@ SUBROUTINE INPUT (ID,X,Y,Z,NUMNP,NEQ)
 
 ! Write complete nodal data
 
-  WRITE (IOUT,"(//,' N O D A L   P O I N T   D A T A',/)")
+!  WRITE (IOUT,"(//,' N O D A L   P O I N T   D A T A',/)")
+!
+!  WRITE (IOUT,"('  NODE',10X,'BOUNDARY',25X,'NODAL POINT',/,  &
+!                ' NUMBER     CONDITION  CODES',21X,'COORDINATES', /,15X, &
+!                'X    Y    Z',15X,'X',12X,'Y',12X,'Z')")
 
-  WRITE (IOUT,"('  NODE',10X,'BOUNDARY',25X,'NODAL POINT',/,  &
-                ' NUMBER     CONDITION  CODES',21X,'COORDINATES', /,15X, &
-                'X    Y    Z',15X,'X',12X,'Y',12X,'Z')")
+! Write msh instead
+  WRITE (IOUT,"('$Nodes',/,I0)") NUMNP
 
   DO N=1,NUMNP
-     WRITE (IOUT,"(I5,6X,3I5,6X,3F13.3)") N,(ID(I,N),I=1,3),X(N),Y(N),Z(N)
+     !WRITE (IOUT,"(I5,6X,3I5,6X,3F13.3)") N,(ID(I,N),I=1,3),X(N),Y(N),Z(N)
+     WRITE (IOUT,"(I0,3F13.3)") N,X(N),Y(N),Z(N)
   END DO
+  WRITE (IOUT,"('$EndNodes')")
 
 ! Number unknowns
 
@@ -65,10 +70,11 @@ SUBROUTINE INPUT (ID,X,Y,Z,NUMNP,NEQ)
      END DO
   END DO
 
+! TODO: Write constriant info
 ! Write equation numbers
-  WRITE (IOUT,"(//,' EQUATION NUMBERS',//,'   NODE',9X,  &
-                   'DEGREES OF FREEDOM',/,'  NUMBER',/,  &
-                   '     N',13X,'X    Y    Z',/,(1X,I5,9X,3I5))") (N,(ID(I,N),I=1,3),N=1,NUMNP)
+!  WRITE (IOUT,"(//,' EQUATION NUMBERS',//,'   NODE',9X,  &
+!                   'DEGREES OF FREEDOM',/,'  NUMBER',/,  &
+!                   '     N',13X,'X    Y    Z',/,(1X,I5,9X,3I5))") (N,(ID(I,N),I=1,3),N=1,NUMNP)
 
   RETURN
 
@@ -90,11 +96,16 @@ SUBROUTINE LOADS (R,NOD,IDIRN,FLOAD,ID,NLOAD,NEQ)
   REAL(8) :: R(NEQ),FLOAD(NLOAD)
   INTEGER :: I,L,LI,LN,II
 
-  WRITE (IOUT,"(/,'    NODE       DIRECTION      LOAD',/, '   NUMBER',19X,'MAGNITUDE')")
+!  WRITE (IOUT,"(/,'    NODE       DIRECTION      LOAD',/, '   NUMBER',19X,'MAGNITUDE')")
 
   READ (IIN,"(2I5,F10.0)") (NOD(I),IDIRN(I),FLOAD(I),I=1,NLOAD)
 
-  WRITE (IOUT,"(' ',I6,9X,I4,7X,E12.5)") (NOD(I),IDIRN(I),FLOAD(I),I=1,NLOAD)
+!  WRITE (IOUT,"(' ',I6,9X,I4,7X,E12.5)") (NOD(I),IDIRN(I),FLOAD(I),I=1,NLOAD)
+  DO I=1,NLOAD
+    IF (IDIRN(I).EQ.1) WRITE (IOUT,"(I0,1X,E12.5,' 0 0')") NOD(I),FLOAD(I)
+    IF (IDIRN(I).EQ.2) WRITE (IOUT,"(I0,1X,'0 ',E12.5,' 0')") NOD(I),FLOAD(I)
+    IF (IDIRN(I).EQ.3) WRITE (IOUT,"(I0,1X,'0 0 ',E12.5)") NOD(I),FLOAD(I)
+  END DO
 
   IF (MODEX.EQ.0) RETURN
 

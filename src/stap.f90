@@ -18,7 +18,7 @@ PROGRAM STAP90
 
   IMPLICIT NONE
   INTEGER :: NLCASE, NEQ1, NLOAD, MM
-  INTEGER :: L, LL, I
+  INTEGER :: L, LL, I, N
   REAL :: TT
 
 ! OPEN INPUT DATA FILE, RESULTS OUTPUT FILE AND TEMPORARY FILES
@@ -31,7 +31,7 @@ PROGRAM STAP90
 ! *              INPUT PHASE                *
 ! * * * * * * * * * * * * * * * * * * * * * *
 
-  WRITE(*,'("Input phase ... ")')
+!  WRITE(*,'("Input phase ... ")')
   
   CALL SECOND (TIM(1))
 
@@ -50,14 +50,17 @@ PROGRAM STAP90
 
   IF (NUMNP.EQ.0) STOP   ! Data check mode
 
-  WRITE (IOUT,"(/,' ',A80,//,  &
-     ' C O N T R O L   I N F O R M A T I O N',//,  &
-     '      NUMBER OF NODAL POINTS',10(' .'),' (NUMNP)  = ',I5,/,   &
-     '      NUMBER OF ELEMENT GROUPS',9(' .'),' (NUMEG)  = ',I5,/,  &
-     '      NUMBER OF LOAD CASES',11(' .'),' (NLCASE) = ',I5,/,     &
-     '      SOLUTION MODE ',14(' .'),' (MODEX)  = ',I5,/,            &
-     '         EQ.0, DATA CHECK',/,   &
-     '         EQ.1, EXECUTION')") HED,NUMNP,NUMEG,NLCASE,MODEX
+!  WRITE (IOUT,"(/,' ',A80,//,  &
+!     ' C O N T R O L   I N F O R M A T I O N',//,  &
+!     '      NUMBER OF NODAL POINTS',10(' .'),' (NUMNP)  = ',I5,/,   &
+!     '      NUMBER OF ELEMENT GROUPS',9(' .'),' (NUMEG)  = ',I5,/,  &
+!     '      NUMBER OF LOAD CASES',11(' .'),' (NLCASE) = ',I5,/,     &
+!     '      SOLUTION MODE ',14(' .'),' (MODEX)  = ',I5,/,            &
+!     '         EQ.0, DATA CHECK',/,   &
+!     '         EQ.1, EXECUTION')") HED,NUMNP,NUMEG,NLCASE,MODEX
+
+! Write msh head instead
+WRITE (IOUT,"('$MeshFormat'/'2.2 0 8'/'$EndMeshFormat')")
 
 ! Read nodal point data
 
@@ -81,7 +84,7 @@ PROGRAM STAP90
 
   CALL MEMALLOC(5,"R    ",NEQ,ITWO)
 
-  WRITE (IOUT,"(//,' L O A D   C A S E   D A T A')")
+!  WRITE (IOUT,"(//,' L O A D   C A S E   D A T A')")
 
   REWIND ILOAD
 
@@ -92,8 +95,12 @@ PROGRAM STAP90
 
      READ (IIN,'(2I5)') LL,NLOAD
 
-     WRITE (IOUT,"(/,'     LOAD CASE NUMBER',7(' .'),' = ',I5,/, &
-                     '     NUMBER OF CONCENTRATED LOADS . = ',I5)") LL,NLOAD
+!     WRITE (IOUT,"(/,'     LOAD CASE NUMBER',7(' .'),' = ',I5,/, &
+!                     '     NUMBER OF CONCENTRATED LOADS . = ',I5)") LL,NLOAD
+     ! Write msh instead
+     WRITE (IOUT,"('$NodeData',/,'1')")
+     WRITE (IOUT,"(('""NodalLoad',I0,'""'))") LL
+     WRITE (IOUT,"('1',/,'0.0',/,'3',/,'0',/,'3',/,I0)") NLOAD
 
      IF (LL.NE.L) THEN
         WRITE (IOUT,"(' *** ERROR *** LOAD CASES ARE NOT IN ORDER')")
@@ -113,6 +120,7 @@ PROGRAM STAP90
      CALL MEMALLOC(8,"FLOAD",NLOAD,ITWO)
 
      CALL LOADS (DA(NP(5)),IA(NP(6)),IA(NP(7)),DA(NP(8)),IA(NP(1)),NLOAD,NEQ)
+     WRITE (IOUT,"('$EndNodeData')")
 
   END DO
 
@@ -133,7 +141,7 @@ PROGRAM STAP90
 ! *               SOLUTION PHASE            *
 ! * * * * * * * * * * * * * * * * * * * * * *
 
-  WRITE(*,'("Solution phase ... ")')
+!  WRITE(*,'("Solution phase ... ")')
   
 ! Assemble stiffness matrix
 
@@ -157,11 +165,11 @@ PROGRAM STAP90
 
 ! Write total system data
 
-  WRITE (IOUT,"(//,' TOTAL SYSTEM DATA',//,   &
-                   '     NUMBER OF EQUATIONS',14(' .'),'(NEQ) = ',I5,/,   &
-                   '     NUMBER OF MATRIX ELEMENTS',11(' .'),'(NWK) = ',I5,/,   &
-                   '     MAXIMUM HALF BANDWIDTH ',12(' .'),'(MK ) = ',I5,/,     &
-                   '     MEAN HALF BANDWIDTH',14(' .'),'(MM ) = ',I5)") NEQ,NWK,MK,MM
+!  WRITE (IOUT,"(//,' TOTAL SYSTEM DATA',//,   &
+!                   '     NUMBER OF EQUATIONS',14(' .'),'(NEQ) = ',I5,/,   &
+!                   '     NUMBER OF MATRIX ELEMENTS',11(' .'),'(NWK) = ',I5,/,   &
+!                   '     MAXIMUM HALF BANDWIDTH ',12(' .'),'(MK ) = ',I5,/,     &
+!                   '     MEAN HALF BANDWIDTH',14(' .'),'(MM ) = ',I5)") NEQ,NWK,MK,MM
 
 ! In data check only mode we skip all further calculations
 
@@ -189,11 +197,18 @@ PROGRAM STAP90
 !       Solve the equilibrium equations to calculate the displacements
         CALL COLSOL (DA(NP(3)),DA(NP(4)),IA(NP(2)),NEQ,NWK,NEQ1,2)
 
-        WRITE (IOUT,"(//,' LOAD CASE ',I3)") L
+!        WRITE (IOUT,"(//,' LOAD CASE ',I3)") L
+        WRITE (IOUT,"('$NodeData',/,'1')")
+        WRITE (IOUT,"(('""NodeDisplacement',I0,'""'))") L
+        WRITE (IOUT,"('1',/,'0.0',/,'3',/,'0',/,'3',/,I0)") NUMNP
         CALL WRITED (DA(NP(4)),IA(NP(1)),NEQ,NUMNP)  ! Print displacements
+        WRITE (IOUT,"('$EndNodeData')")
 
 !       Calculation of stresses
+        WRITE (IOUT,"('$ElementData',/,'1')")
+        WRITE (IOUT,"(('""ElementStress',I0,'""'))") L
         CALL STRESS (A(NP(11)))
+        WRITE (IOUT,"('$EndElementData')")
 
      END DO
 
@@ -208,22 +223,22 @@ PROGRAM STAP90
      TT=TT + TIM(I)
   END DO
 
-  WRITE (IOUT,"(//,  &
-     ' S O L U T I O N   T I M E   L O G   I N   S E C',//,   &
-     '     TIME FOR INPUT PHASE ',14(' .'),' =',F12.2,/,     &
-     '     TIME FOR CALCULATION OF STIFFNESS MATRIX  . . . . =',F12.2, /,   &
-     '     TIME FOR FACTORIZATION OF STIFFNESS MATRIX  . . . =',F12.2, /,   &
-     '     TIME FOR LOAD CASE SOLUTIONS ',10(' .'),' =',F12.2,//,   &
-     '      T O T A L   S O L U T I O N   T I M E  . . . . . =',F12.2)") (TIM(I),I=1,4),TT
-
-
-  WRITE (*,"(//,  &
-     ' S O L U T I O N   T I M E   L O G   I N   S E C',//,   &
-     '     TIME FOR INPUT PHASE ',14(' .'),' =',F12.2,/,     &
-     '     TIME FOR CALCULATION OF STIFFNESS MATRIX  . . . . =',F12.2, /,   &
-     '     TIME FOR FACTORIZATION OF STIFFNESS MATRIX  . . . =',F12.2, /,   &
-     '     TIME FOR LOAD CASE SOLUTIONS ',10(' .'),' =',F12.2,//,   &
-     '      T O T A L   S O L U T I O N   T I M E  . . . . . =',F12.2)") (TIM(I),I=1,4),TT
+!  WRITE (IOUT,"(//,  &
+!     ' S O L U T I O N   T I M E   L O G   I N   S E C',//,   &
+!     '     TIME FOR INPUT PHASE ',14(' .'),' =',F12.2,/,     &
+!     '     TIME FOR CALCULATION OF STIFFNESS MATRIX  . . . . =',F12.2, /,   &
+!     '     TIME FOR FACTORIZATION OF STIFFNESS MATRIX  . . . =',F12.2, /,   &
+!     '     TIME FOR LOAD CASE SOLUTIONS ',10(' .'),' =',F12.2,//,   &
+!     '      T O T A L   S O L U T I O N   T I M E  . . . . . =',F12.2)") (TIM(I),I=1,4),TT
+!
+!
+!  WRITE (*,"(//,  &
+!     ' S O L U T I O N   T I M E   L O G   I N   S E C',//,   &
+!     '     TIME FOR INPUT PHASE ',14(' .'),' =',F12.2,/,     &
+!     '     TIME FOR CALCULATION OF STIFFNESS MATRIX  . . . . =',F12.2, /,   &
+!     '     TIME FOR FACTORIZATION OF STIFFNESS MATRIX  . . . =',F12.2, /,   &
+!     '     TIME FOR LOAD CASE SOLUTIONS ',10(' .'),' =',F12.2,//,   &
+!     '      T O T A L   S O L U T I O N   T I M E  . . . . . =',F12.2)") (TIM(I),I=1,4),TT
   STOP
 
 END PROGRAM STAP90
@@ -258,16 +273,16 @@ SUBROUTINE WRITED (DISP,ID,NEQ,NUMNP)
 
 ! Print displacements
 
-  WRITE (IOUT,"(//,' D I S P L A C E M E N T S',//,'  NODE ',10X,   &
-                    'X-DISPLACEMENT    Y-DISPLACEMENT    Z-DISPLACEMENT')")
+!  WRITE (IOUT,"(//,' D I S P L A C E M E N T S',//,'  NODE ',10X,   &
+!                    'X-DISPLACEMENT    Y-DISPLACEMENT    Z-DISPLACEMENT')")
 
   IC=4
 
   DO II=1,NUMNP
      IC=IC + 1
      IF (IC.GE.56) THEN
-        WRITE (IOUT,"(//,' D I S P L A C E M E N T S',//,'  NODE ',10X,   &
-                          'X-DISPLACEMENT    Y-DISPLACEMENT    Z-DISPLACEMENT')")
+!        WRITE (IOUT,"(//,' D I S P L A C E M E N T S',//,'  NODE ',10X,   &
+!                          'X-DISPLACEMENT    Y-DISPLACEMENT    Z-DISPLACEMENT')")
         IC=4
      END IF
 
@@ -281,7 +296,8 @@ SUBROUTINE WRITED (DISP,ID,NEQ,NUMNP)
         IF (KK.NE.0) D(IL)=DISP(KK)
      END DO
 
-     WRITE (IOUT,'(1X,I5,6X,3E18.6)') II,D
+!     WRITE (IOUT,'(1X,I3,8X,3E18.6)') II,D
+     WRITE (IOUT,'(I0,3E18.6)') II,D
 
   END DO
 

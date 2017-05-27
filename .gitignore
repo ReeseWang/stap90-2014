@@ -9,3 +9,5 @@ make/gnu/stap
 *.OUT
 *.swo
 *.TMP
+*.mod
+
