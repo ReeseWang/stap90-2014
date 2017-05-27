@@ -63,6 +63,8 @@ SUBROUTINE ELEMNT
 
   IF (NPAR1 == 1) THEN
      CALL TRUSS
+  ELSE IF (NPAR1 == 8) THEN
+     CALL SOLID
   ELSE
 !    Other element types would be called here, identifying each
 !    element type by a different NPAR(1) parameter
